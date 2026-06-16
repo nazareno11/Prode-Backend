@@ -2,9 +2,12 @@ package com.prog4_tpi_grupo1.backend.partido.controller;
 
 import com.prog4_tpi_grupo1.backend.partido.dto.ResultadoPartidoDTO;
 import com.prog4_tpi_grupo1.backend.partido.entity.Partido;
+import com.prog4_tpi_grupo1.backend.partido.repository.PartidoRepository;
 import com.prog4_tpi_grupo1.backend.partido.service.PartidoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/partidos")
@@ -12,6 +15,13 @@ import org.springframework.web.bind.annotation.*;
 public class PartidoController {
 
     private final PartidoService partidoService;
+    private final PartidoRepository partidoRepository;
+
+    @GetMapping
+    public List<Partido> listar() {
+
+        return partidoRepository.findAll();
+    }
 
     @PatchMapping("/{id}/iniciar")
     public Partido iniciarPartido(@PathVariable Long id) {
@@ -26,4 +36,5 @@ public class PartidoController {
 
         return partidoService.cargarResultado(id, dto);
     }
+
 }
