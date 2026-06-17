@@ -2,17 +2,22 @@ package com.prog4_tpi_grupo1.backend.footballdata.service;
 
 import com.prog4_tpi_grupo1.backend.equipo.entity.Equipo;
 import com.prog4_tpi_grupo1.backend.equipo.repository.EquipoRepository;
+import com.prog4_tpi_grupo1.backend.fecha.entity.EstadoFecha;
+import com.prog4_tpi_grupo1.backend.fecha.entity.Fecha;
+import com.prog4_tpi_grupo1.backend.fecha.repository.FechaRepository;
 import com.prog4_tpi_grupo1.backend.footballdata.client.FootballDataClient;
 import com.prog4_tpi_grupo1.backend.footballdata.dto.MatchDTO;
 import com.prog4_tpi_grupo1.backend.footballdata.dto.TeamDTO;
 import com.prog4_tpi_grupo1.backend.partido.entity.EstadoPartido;
 import com.prog4_tpi_grupo1.backend.partido.entity.Partido;
 import com.prog4_tpi_grupo1.backend.partido.repository.PartidoRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +26,7 @@ public class FootballDataService {
     private final FootballDataClient footballDataClient;
     private final EquipoRepository equipoRepository;
     private final PartidoRepository partidoRepository;
+    private final FechaRepository fechaRepository;
 
     public void syncTeams() {
 
@@ -52,6 +58,8 @@ public class FootballDataService {
 
         var response = footballDataClient.getWorldCupMatches();
 
+        Set<Fecha> fechasActualizadas = new HashSet<>();
+
         for (MatchDTO match : response.getMatches()) {
 
             if (match.getHomeTeam() == null
@@ -62,8 +70,13 @@ public class FootballDataService {
                 continue;
             }
 
-            Optional<Equipo> localOpt = equipoRepository.findByExternalId(match.getHomeTeam().getId());
+            Fecha fecha = fechaRepository.findByGrupoAndMatchday(
+                            match.getGroup(),
+                            match.getMatchday()).orElseThrow();
 
+            fechasActualizadas.add(fecha);
+
+            Optional<Equipo> localOpt = equipoRepository.findByExternalId(match.getHomeTeam().getId());
             Optional<Equipo> visitanteOpt = equipoRepository.findByExternalId(match.getAwayTeam().getId());
 
             if (localOpt.isEmpty()
@@ -81,7 +94,6 @@ public class FootballDataService {
             if (match.getScore() != null && match.getScore().getFullTime() != null) {
 
                 golesLocal = match.getScore().getFullTime().getHome();
-
                 golesVisitante = match.getScore().getFullTime().getAway();
             }
 
@@ -108,10 +120,14 @@ public class FootballDataService {
                         .resultadoVisitante(golesVisitante)
                         .equipoLocal(local)
                         .equipoVisitante(visitante)
+                        .fecha(fecha)
                         .build();
 
                 partidoRepository.save(partido);
             }
+        }
+        for (Fecha fecha : fechasActualizadas) {
+            actualizarEstadoFecha(fecha);
         }
     }
 
@@ -125,5 +141,78 @@ public class FootballDataService {
             case "FINISHED" -> EstadoPartido.FINALIZADO;
             default -> EstadoPartido.POR_JUGARSE;
         };
+    }
+
+    public void syncFechas() {
+
+        var response = footballDataClient.getWorldCupMatches();
+
+        for (MatchDTO match : response.getMatches()) {
+
+            String grupo = match.getGroup();
+
+            Integer matchday = match.getMatchday();
+
+            if (grupo == null || matchday == null) {
+                continue;
+            }
+
+            boolean existe = fechaRepository
+                    .findByGrupoAndMatchday(
+                            grupo,
+                            matchday
+                    )
+                    .isPresent();
+
+            if (existe) {
+                continue;
+            }
+
+            Fecha fecha = Fecha.builder()
+                    .nombre(
+                            grupo + " - Fecha " + matchday
+                    )
+                    .grupo(grupo)
+                    .matchday(matchday)
+                    .estado(EstadoFecha.PROGRAMADA)
+                    .build();
+
+            fechaRepository.save(fecha);
+        }
+    }
+
+    @Transactional
+    public void actualizarEstadoFecha(Fecha fecha) {
+
+        List<Partido> partidos = partidoRepository.findByFecha(fecha);
+
+        if (partidos.isEmpty()) {
+            return;
+        }
+
+        boolean todosFinalizados = partidos
+                                    .stream()
+                                    .allMatch(p -> p.getEstado() == EstadoPartido.FINALIZADO);
+
+        if (todosFinalizados) {
+
+            fecha.setEstado(EstadoFecha.FINALIZADA);
+            fechaRepository.save(fecha);
+            return;
+        }
+
+        boolean algunoEnJuego = partidos.stream()
+                                .anyMatch(p -> p.getEstado() == EstadoPartido.EN_JUEGO);
+
+        if (algunoEnJuego) {
+
+            fecha.setEstado(EstadoFecha.EN_JUEGO);
+            fechaRepository.save(fecha);
+            return;
+        }
+
+        fecha.setEstado(EstadoFecha.PROGRAMADA);
+
+        fechaRepository.save(fecha);
     }
 }
