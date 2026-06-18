@@ -13,6 +13,7 @@ import com.prog4_tpi_grupo1.backend.auth.models.Usuario;
 import com.prog4_tpi_grupo1.backend.auth.repositories.IUsuarioRepository;
 import com.prog4_tpi_grupo1.backend.auth.services.interfaces.IAuthenticationService;
 import com.prog4_tpi_grupo1.backend.auth.services.interfaces.IJwtService;
+import com.prog4_tpi_grupo1.backend.shared.config.esceptions.ConflictException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,11 +35,11 @@ public class AuthenticationServiceImpl
     public AuthResponse register(RegisterRequest request) {
 
         if (usuarioRepository.existsByEmail(request.email())) {
-            throw new RuntimeException("El email ya está registrado");
+            throw new ConflictException("El email ya está registrado");
         }
 
         if (usuarioRepository.existsByUsername(request.username())) {
-            throw new RuntimeException("El nombre de usuario ya existe");
+            throw new ConflictException("El nombre de usuario ya existe");
         }
 
         Usuario usuario = Usuario.builder()

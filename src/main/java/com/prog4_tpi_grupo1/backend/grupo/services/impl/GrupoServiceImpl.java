@@ -17,6 +17,8 @@ import com.prog4_tpi_grupo1.backend.grupo.mapper.GrupoMapper;
 import com.prog4_tpi_grupo1.backend.grupo.models.Grupo;
 import com.prog4_tpi_grupo1.backend.grupo.repositories.IGrupoRepository;
 import com.prog4_tpi_grupo1.backend.grupo.services.interfaces.IGrupoService;
+import com.prog4_tpi_grupo1.backend.shared.config.esceptions.NotFoundException;
+import com.prog4_tpi_grupo1.backend.shared.config.esceptions.ConflictException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -70,14 +72,14 @@ public class GrupoServiceImpl implements IGrupoService {
 
         Grupo grupo = grupoRepository
                 .findByCodigoInvitacion(request.getCodigoInvitacion())
-                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Grupo no encontrado"));
 
         boolean yaPertenece = grupo.getMiembros()
                 .stream()
                 .anyMatch(u -> u.getId().equals(usuario.getId()));
 
         if (yaPertenece) {
-            throw new RuntimeException("Ya perteneces a este grupo");
+            throw new ConflictException("Ya perteneces a este grupo");
         }
 
         grupo.getMiembros().add(usuario);
@@ -102,7 +104,7 @@ public class GrupoServiceImpl implements IGrupoService {
     public List<RankingGrupoResponseDTO> obtenerRanking(Long grupoId) {
 
         Grupo grupo = grupoRepository.findById(grupoId)
-                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Grupo no encontrado"));
 
         List<Usuario> miembros = grupo.getMiembros()
                 .stream()

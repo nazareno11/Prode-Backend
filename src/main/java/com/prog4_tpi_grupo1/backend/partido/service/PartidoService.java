@@ -5,6 +5,8 @@ import com.prog4_tpi_grupo1.backend.partido.entity.EstadoPartido;
 import com.prog4_tpi_grupo1.backend.partido.entity.Partido;
 import com.prog4_tpi_grupo1.backend.partido.entity.Tendencia;
 import com.prog4_tpi_grupo1.backend.partido.repository.PartidoRepository;
+import com.prog4_tpi_grupo1.backend.shared.config.esceptions.NotFoundException;
+import com.prog4_tpi_grupo1.backend.shared.config.esceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,7 @@ public class PartidoService {
     public Partido iniciarPartido(Long partidoId) {
 
         Partido partido = partidoRepository.findById(partidoId)
-                .orElseThrow(() -> new RuntimeException("Partido no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Partido no encontrado"));
 
         partido.setEstado(EstadoPartido.EN_JUEGO);
 
@@ -28,10 +30,10 @@ public class PartidoService {
                                    ResultadoPartidoDTO dto) {
 
         Partido partido = partidoRepository.findById(partidoId)
-                .orElseThrow(() -> new RuntimeException("Partido no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Partido no encontrado"));
 
         if(partido.getEstado() != EstadoPartido.EN_JUEGO) {
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "El partido debe estar EN_JUEGO");
         }
 

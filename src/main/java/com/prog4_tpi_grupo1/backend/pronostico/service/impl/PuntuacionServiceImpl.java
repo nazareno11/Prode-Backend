@@ -12,6 +12,7 @@ import com.prog4_tpi_grupo1.backend.partido.repository.PartidoRepository;
 import com.prog4_tpi_grupo1.backend.pronostico.entity.Pronostico;
 import com.prog4_tpi_grupo1.backend.pronostico.repository.PronosticoRepository;
 import com.prog4_tpi_grupo1.backend.pronostico.service.interfaces.IPuntuacionService;
+import com.prog4_tpi_grupo1.backend.shared.config.esceptions.NotFoundException;
 
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class PuntuacionServiceImpl implements IPuntuacionService {
 public void calcularPuntosPartido(Long partidoId) {
 
     Partido partido = partidoRepository.findById(partidoId)
-            .orElseThrow(() -> new RuntimeException("Partido no encontrado"));
+            .orElseThrow(() -> new NotFoundException("Partido no encontrado"));
 
     if (partido.getResultadoLocal() == null
             || partido.getResultadoVisitante() == null) {

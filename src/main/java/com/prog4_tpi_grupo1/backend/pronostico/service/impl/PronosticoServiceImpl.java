@@ -3,12 +3,13 @@ package com.prog4_tpi_grupo1.backend.pronostico.service.impl;
 import com.prog4_tpi_grupo1.backend.auth.models.Usuario;
 import com.prog4_tpi_grupo1.backend.partido.entity.Partido;
 import com.prog4_tpi_grupo1.backend.partido.entity.EstadoPartido;
-import com.prog4_tpi_grupo1.backend.partido.repository.PartidoRepository; 
+import com.prog4_tpi_grupo1.backend.partido.repository.PartidoRepository;
 import com.prog4_tpi_grupo1.backend.pronostico.dto.request.PronosticoRequestDTO;
 import com.prog4_tpi_grupo1.backend.pronostico.dto.response.PronosticoResponseDTO;
 import com.prog4_tpi_grupo1.backend.pronostico.entity.Pronostico;
 import com.prog4_tpi_grupo1.backend.pronostico.repository.PronosticoRepository;
 import com.prog4_tpi_grupo1.backend.pronostico.service.interfaces.IPronosticoService;
+import com.prog4_tpi_grupo1.backend.shared.config.esceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,7 @@ public class PronosticoServiceImpl implements IPronosticoService {
     @Transactional
     public PronosticoResponseDTO guardarOModificarPronostico(Usuario usuario, PronosticoRequestDTO request) {
         Partido partido = partidoRepository.findById(request.getPartidoId())
-                .orElseThrow(() -> new RuntimeException("Partido no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Partido no encontrado"));
 
         // Validación: Solo partidos en estado POR_JUGARSE
         if (partido.getEstado() != EstadoPartido.POR_JUGARSE) {
@@ -72,7 +73,7 @@ public class PronosticoServiceImpl implements IPronosticoService {
     @Transactional(readOnly = true)
     public List<PronosticoResponseDTO> obtenerPronosticosTerceros(Long partidoId, Usuario usuarioActual) {
         Partido partido = partidoRepository.findById(partidoId)
-                .orElseThrow(() -> new RuntimeException("Partido no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Partido no encontrado"));
 
         // Validación: Solo se permite ver si el periodo de margen de bloqueo EXPIRÓ (Faltan menos de 30 min o ya se juega)
         boolean margenExpirado = LocalDateTime.now().isAfter(partido.getFechaHora().minusMinutes(30));
