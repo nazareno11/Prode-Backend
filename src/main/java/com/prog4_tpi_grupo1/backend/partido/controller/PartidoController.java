@@ -1,29 +1,59 @@
 package com.prog4_tpi_grupo1.backend.partido.controller;
 
-import com.prog4_tpi_grupo1.backend.partido.dto.ResultadoPartidoDTO;
+import com.prog4_tpi_grupo1.backend.partido.dto.PartidoResponseDTO;
 import com.prog4_tpi_grupo1.backend.partido.entity.Partido;
-import com.prog4_tpi_grupo1.backend.partido.service.PartidoService;
+import com.prog4_tpi_grupo1.backend.partido.repository.PartidoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/partidos")
 @RequiredArgsConstructor
 public class PartidoController {
 
-    private final PartidoService partidoService;
+    private final PartidoRepository partidoRepository;
 
-    @PatchMapping("/{id}/iniciar")
-    public Partido iniciarPartido(@PathVariable Long id) {
+    @GetMapping
+    public List<PartidoResponseDTO> listar(
+            @RequestParam(required = false)
+            Long fechaId
+    ) {
 
-        return partidoService.iniciarPartido(id);
+        List<Partido> partidos;
+
+        if (fechaId != null) {
+
+            partidos = partidoRepository
+                    .findByFechaIdOrderByFechaHoraAsc(fechaId);
+
+        } else {
+
+            partidos = partidoRepository
+                    .findAllByOrderByFechaHoraAsc();
+        }
+
+        return partidos.stream()
+                .map(this::toDto)
+                .toList();
     }
 
-    @PatchMapping("/{id}/resultado")
-    public Partido cargarResultado(
-            @PathVariable Long id,
-            @RequestBody ResultadoPartidoDTO dto) {
+    private PartidoResponseDTO toDto(Partido partido) {
 
-        return partidoService.cargarResultado(id, dto);
+        return PartidoResponseDTO.builder()
+                .id(partido.getId())
+                .externalId(partido.getExternalId())
+                .fechaHora(partido.getFechaHora())
+                .estado(partido.getEstado())
+                .matchday(partido.getMatchday())
+                .grupo(partido.getGrupo())
+                .stage(partido.getStage())
+                .equipoLocal(partido.getEquipoLocal().getNombre())
+                .equipoVisitante(partido.getEquipoVisitante().getNombre())
+                .resultadoLocal(partido.getResultadoLocal())
+                .resultadoVisitante(partido.getResultadoVisitante())
+                .fecha(partido.getFecha().getNombre())
+                .build();
     }
 }

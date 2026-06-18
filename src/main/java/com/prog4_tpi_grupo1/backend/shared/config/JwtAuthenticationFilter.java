@@ -21,52 +21,54 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final IJwtService jwtService;
-    private final IUserDetailsService userDetailsService;
+        private final IJwtService jwtService;
+        private final IUserDetailsService userDetailsService;
 
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain)
-            throws ServletException, IOException {
+        @Override
+        protected void doFilterInternal(
+                        HttpServletRequest request,
+                        HttpServletResponse response,
+                        FilterChain filterChain)
+                        throws ServletException, IOException {
 
-        final String authHeader =
-                request.getHeader("Authorization");
 
-        if (authHeader == null ||
-                !authHeader.startsWith("Bearer ")) {
+                final String authHeader = request.getHeader("Authorization");
 
-            filterChain.doFilter(request, response);
-            return;
+          
+
+                if (authHeader == null ||
+                                !authHeader.startsWith("Bearer ")) {
+
+                        filterChain.doFilter(request, response);
+                        return;
+                }
+
+                String jwt = authHeader.substring(7);
+
+                String email = jwtService.extractUsername(jwt);
+             
+
+                if (email != null &&
+                                SecurityContextHolder.getContext()
+                                                .getAuthentication() == null) {
+
+                        UserDetails userDetails = userDetailsService
+                                        .loadUserByUsername(email);
+
+
+                        if (jwtService.isTokenValid(jwt, userDetails)) {
+
+                                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                                userDetails,
+                                                null,
+                                                userDetails.getAuthorities());
+
+                                SecurityContextHolder.getContext()
+                                                .setAuthentication(authToken);
+                           
+                        }
+                }
+
+                filterChain.doFilter(request, response);
         }
-
-        String jwt = authHeader.substring(7);
-
-        String email = jwtService.extractUsername(jwt);
-
-        if (email != null &&
-                SecurityContextHolder.getContext()
-                        .getAuthentication() == null) {
-
-            UserDetails userDetails =
-                    userDetailsService
-                            .loadUserByUsername(email);
-
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authToken);
-            }
-        }
-
-        filterChain.doFilter(request, response);
-    }
 }

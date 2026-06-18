@@ -1,6 +1,8 @@
 package com.prog4_tpi_grupo1.backend.partido.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.prog4_tpi_grupo1.backend.equipo.entity.Equipo;
+import com.prog4_tpi_grupo1.backend.fecha.entity.Fecha;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,4 +48,9 @@ public class Partido {
 
     @Enumerated(EnumType.STRING)
     private Tendencia tendencia;
+
+    @ManyToOne
+    @JoinColumn(name = "fecha_id")
+    @JsonBackReference
+    private Fecha fecha;
 }
