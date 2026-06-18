@@ -11,6 +11,8 @@ import com.prog4_tpi_grupo1.backend.footballdata.dto.TeamDTO;
 import com.prog4_tpi_grupo1.backend.partido.entity.EstadoPartido;
 import com.prog4_tpi_grupo1.backend.partido.entity.Partido;
 import com.prog4_tpi_grupo1.backend.partido.repository.PartidoRepository;
+import com.prog4_tpi_grupo1.backend.pronostico.service.interfaces.IPuntuacionService;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,17 +30,18 @@ public class FootballDataService {
     private final PartidoRepository partidoRepository;
     private final FechaRepository fechaRepository;
 
+    // puntuacion
+    private final IPuntuacionService puntuacionService;
+
     public void syncTeams() {
 
-        var response =
-                footballDataClient.getWorldCupTeams();
+        var response = footballDataClient.getWorldCupTeams();
 
         for (TeamDTO team : response.getTeams()) {
 
-            boolean existe =
-                    equipoRepository
-                            .findByExternalId(team.getId())
-                            .isPresent();
+            boolean existe = equipoRepository
+                    .findByExternalId(team.getId())
+                    .isPresent();
 
             if (!existe) {
 
@@ -71,8 +74,8 @@ public class FootballDataService {
             }
 
             Fecha fecha = fechaRepository.findByGrupoAndMatchday(
-                            match.getGroup(),
-                            match.getMatchday()).orElseThrow();
+                    match.getGroup(),
+                    match.getMatchday()).orElseThrow();
 
             fechasActualizadas.add(fecha);
 
@@ -102,10 +105,23 @@ public class FootballDataService {
             if (partidoExistente.isPresent()) {
 
                 Partido partido = partidoExistente.get();
+
+                // Guardamos el estado anterior
+                EstadoPartido estadoAnterior = partido.getEstado();
+
+                // Actualizamos el partido
                 partido.setEstado(convertirEstado(match.getStatus()));
                 partido.setResultadoLocal(golesLocal);
                 partido.setResultadoVisitante(golesVisitante);
+
                 partidoRepository.save(partido);
+
+                // Si recien paso a finalizado, calculamos los puntos
+                if (estadoAnterior != EstadoPartido.FINALIZADO
+                        && partido.getEstado() == EstadoPartido.FINALIZADO) {
+
+                    puntuacionService.calcularPuntosPartido(partido.getId());
+                }
 
             } else {
 
@@ -137,7 +153,8 @@ public class FootballDataService {
 
             case "SCHEDULED" -> EstadoPartido.POR_JUGARSE;
             case "IN_PLAY",
-                 "PAUSED" -> EstadoPartido.EN_JUEGO;
+                    "PAUSED" ->
+                EstadoPartido.EN_JUEGO;
             case "FINISHED" -> EstadoPartido.FINALIZADO;
             default -> EstadoPartido.POR_JUGARSE;
         };
@@ -160,8 +177,7 @@ public class FootballDataService {
             boolean existe = fechaRepository
                     .findByGrupoAndMatchday(
                             grupo,
-                            matchday
-                    )
+                            matchday)
                     .isPresent();
 
             if (existe) {
@@ -170,8 +186,7 @@ public class FootballDataService {
 
             Fecha fecha = Fecha.builder()
                     .nombre(
-                            grupo + " - Fecha " + matchday
-                    )
+                            grupo + " - Fecha " + matchday)
                     .grupo(grupo)
                     .matchday(matchday)
                     .estado(EstadoFecha.PROGRAMADA)
@@ -191,8 +206,8 @@ public class FootballDataService {
         }
 
         boolean todosFinalizados = partidos
-                                    .stream()
-                                    .allMatch(p -> p.getEstado() == EstadoPartido.FINALIZADO);
+                .stream()
+                .allMatch(p -> p.getEstado() == EstadoPartido.FINALIZADO);
 
         if (todosFinalizados) {
 
@@ -202,7 +217,7 @@ public class FootballDataService {
         }
 
         boolean algunoEnJuego = partidos.stream()
-                                .anyMatch(p -> p.getEstado() == EstadoPartido.EN_JUEGO);
+                .anyMatch(p -> p.getEstado() == EstadoPartido.EN_JUEGO);
 
         if (algunoEnJuego) {
 
