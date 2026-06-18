@@ -12,11 +12,16 @@ import java.util.Optional;
 
 @Repository
 public interface PronosticoRepository extends JpaRepository<Pronostico, Long> {
-    
+
     Optional<Pronostico> findByUsuarioIdAndPartidoId(Long usuarioId, Long partidoId);
 
     @Query("SELECT p FROM Pronostico p WHERE p.usuario.id = :usuarioId AND (:estado IS NULL OR p.partido.estado = :estado)")
-    List<Pronostico> findByUsuarioIdAndPartidoEstado(@Param("usuarioId") Long usuarioId, @Param("estado") EstadoPartido estado);
+    List<Pronostico> findByUsuarioIdAndPartidoEstado(
+            @Param("usuarioId") Long usuarioId,
+            @Param("estado") EstadoPartido estado);
 
     List<Pronostico> findByPartidoIdAndUsuarioIdNot(Long partidoId, Long usuarioId);
+
+    List<Pronostico> findByPartidoId(Long partidoId);
 }
+
