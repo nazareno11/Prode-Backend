@@ -1,11 +1,15 @@
 package com.prog4_tpi_grupo1.backend.auth.models;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.prog4_tpi_grupo1.backend.grupo.models.Grupo;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,10 +18,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -48,11 +54,15 @@ public class Usuario implements UserDetails {
 
     private Integer plenosAcertados;
 
+    @EqualsAndHashCode.Exclude //evitar StackOverflowError
+    @ManyToMany(mappedBy = "miembros")
+    @Builder.Default
+    private Set<Grupo> grupos = new HashSet<>(); // set para que un user no pueda unirse varias veces a un grupo
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(
-                new SimpleGrantedAuthority("ROLE_" + rol.name())
-        );
+                new SimpleGrantedAuthority("ROLE_" + rol.name()));
     }
 
     @Override
