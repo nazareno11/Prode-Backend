@@ -30,4 +30,11 @@ public class FootballDataController {
         return "Partidos sincronizados";
     }
 
+    @PostMapping("/sync-fechas")
+    public String syncFechas() {
+
+        service.syncFechas();
+
+        return "Fechas sincronizadas";
+    }
 }
