@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.prog4_tpi_grupo1.backend.auth.models.Usuario;
-import com.prog4_tpi_grupo1.backend.auth.repositories.IUsuarioRepository;
 import com.prog4_tpi_grupo1.backend.grupo.dtos.request.CrearGrupoRequestDTO;
 import com.prog4_tpi_grupo1.backend.grupo.dtos.request.UnirseGrupoRequestDTO;
 import com.prog4_tpi_grupo1.backend.grupo.dtos.response.GrupoResponseDTO;
@@ -26,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 public class GrupoServiceImpl implements IGrupoService {
 
     private final IGrupoRepository grupoRepository;
-    private final IUsuarioRepository usuarioRepository;
     private final GrupoMapper grupoMapper;
 
     private String generarCodigoInvitacion() {
