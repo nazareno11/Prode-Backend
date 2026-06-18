@@ -13,7 +13,7 @@ import com.prog4_tpi_grupo1.backend.pronostico.entity.Pronostico;
 import com.prog4_tpi_grupo1.backend.pronostico.repository.PronosticoRepository;
 import com.prog4_tpi_grupo1.backend.pronostico.service.interfaces.IPuntuacionService;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service

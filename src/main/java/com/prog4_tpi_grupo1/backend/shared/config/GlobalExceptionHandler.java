@@ -66,20 +66,17 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    /*
-    *Maneja las excepciones cuando falle el login
-    */
+    /**
+     * Maneja las excepciones cuando falle el login
+     */
     @ExceptionHandler(BadCredentialsException.class)
-    public ProblemDetail handleBadCredentials(
-        BadCredentialsException ex) {
+    public ProblemDetail handleBadCredentials(BadCredentialsException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
 
-    ProblemDetail problem = ProblemDetail.forStatus(
-            HttpStatus.UNAUTHORIZED);
+        problem.setTitle("Credenciales inválidas");
 
-    problem.setTitle("Credenciales inválidas");
+        problem.setDetail("Email o contraseña incorrectos.");
 
-    problem.setDetail("Email o contraseña incorrectos.");
-
-    return problem;
-}
+        return problem;
+    }
 }
