@@ -12,4 +12,5 @@ public interface IGrupoRepository extends JpaRepository<Grupo, Long> {
 
     boolean existsByCodigoInvitacion(String codigoInvitacion);
 
+
 }
