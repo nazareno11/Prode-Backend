@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.config.Customizer;
 
 import lombok.AllArgsConstructor;
 
@@ -38,6 +39,8 @@ public class SecurityConfig {
             throws Exception {
 
         return http
+                .cors(Customizer.withDefaults()) 
+
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
