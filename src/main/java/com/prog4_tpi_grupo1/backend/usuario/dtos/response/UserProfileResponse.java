@@ -6,6 +6,8 @@ public record UserProfileResponse(
         String username,
         String email,
         Integer puntosTotales,
-        Integer plenosAcertados
+        Integer plenosAcertados,
+        Integer cantidadPronosticos,
+        Integer cantidadGrupos
 
 ) {}

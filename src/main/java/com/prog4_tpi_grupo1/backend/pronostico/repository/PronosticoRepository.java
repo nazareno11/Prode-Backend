@@ -1,5 +1,6 @@
 package com.prog4_tpi_grupo1.backend.pronostico.repository;
 
+import com.prog4_tpi_grupo1.backend.auth.models.Usuario;
 import com.prog4_tpi_grupo1.backend.partido.entity.EstadoPartido; // <-- Importamos el Enum
 import com.prog4_tpi_grupo1.backend.pronostico.entity.Pronostico;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,5 +24,7 @@ public interface PronosticoRepository extends JpaRepository<Pronostico, Long> {
     List<Pronostico> findByPartidoIdAndUsuarioIdNot(Long partidoId, Long usuarioId);
 
     List<Pronostico> findByPartidoId(Long partidoId);
+
+    long countByUsuario(Usuario usuario);
 }
 
