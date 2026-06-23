@@ -2,7 +2,6 @@ package com.prog4_tpi_grupo1.backend.footballdata.controller;
 
 import com.prog4_tpi_grupo1.backend.footballdata.service.FootballDataService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
