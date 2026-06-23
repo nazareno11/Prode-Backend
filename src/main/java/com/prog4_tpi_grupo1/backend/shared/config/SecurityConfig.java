@@ -46,7 +46,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // Login y registro
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**",
+                                                    "/swagger-ui/**",
+                                                    "/swagger-ui.html").permitAll()
 
                         // Todo lo demás requiere autenticación
                         .anyRequest().authenticated())

@@ -3,11 +3,18 @@ package com.prog4_tpi_grupo1.backend.partido.controller;
 import com.prog4_tpi_grupo1.backend.partido.dto.PartidoResponseDTO;
 import com.prog4_tpi_grupo1.backend.partido.entity.Partido;
 import com.prog4_tpi_grupo1.backend.partido.repository.PartidoRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(
+        name = "Partidos",
+        description = "Consulta de partidos"
+)
 @RestController
 @RequestMapping("/api/partidos")
 @RequiredArgsConstructor
@@ -15,11 +22,18 @@ public class PartidoController {
 
     private final PartidoRepository partidoRepository;
 
+    @Operation(
+            summary = "Listar partidos",
+            description = "Obtiene todos los partidos o filtra por fecha"
+    )
     @GetMapping
     public List<PartidoResponseDTO> listar(
+            @Parameter(
+                    description = "ID de la fecha",
+                    example = "1"
+            )
             @RequestParam(required = false)
-            Long fechaId
-    ) {
+            Long fechaId) {
 
         List<Partido> partidos;
 
