@@ -23,7 +23,9 @@ public class UsuarioMapper {
                 usuario.getPlenosAcertados(),
                 cantidadPronosticos,
                 cantidadGrupos,
-                ranking
+                ranking,
+                //avatar 
+                usuario.getAvatar() != null ? usuario.getAvatar().getUrl() : null
                 
 
         );

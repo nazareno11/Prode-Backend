@@ -9,8 +9,10 @@ import com.prog4_tpi_grupo1.backend.pronostico.repository.PronosticoRepository;
 import com.prog4_tpi_grupo1.backend.ranking.services.interfaces.IRankingService;
 import com.prog4_tpi_grupo1.backend.usuario.dtos.response.UserProfileResponse;
 import com.prog4_tpi_grupo1.backend.usuario.mapper.UsuarioMapper;
+import com.prog4_tpi_grupo1.backend.usuario.models.Avatar;
 import com.prog4_tpi_grupo1.backend.usuario.services.interfaces.IUsuarioService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -45,4 +47,29 @@ public class UsuarioServiceImpl implements IUsuarioService {
                                 cantidadGrupos,
                                 ranking);
         }
+
+        /*AVATAR */
+        @Transactional
+        public void updateAvatar(Avatar avatar) {
+
+        Usuario usuario = getUsuarioLogueado();
+
+        usuario.setAvatar(avatar);
+
+        usuarioRepository.save(usuario);
+        }
+
+        private Usuario getUsuarioLogueado() {
+
+        Usuario auth = (Usuario) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return usuarioRepository
+                .findById(auth.getId())
+                .orElseThrow();
+        }
+        
+        
 }

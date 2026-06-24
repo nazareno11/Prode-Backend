@@ -47,7 +47,9 @@ public class SecurityConfig {
 
                     .requestMatchers( // login NO TOCAR 
                             "/api/auth/login",
-                            "/api/auth/register"
+                            "/api/auth/register",
+                            "/api/avatars"
+
                     ).permitAll()
 
                     .requestMatchers(

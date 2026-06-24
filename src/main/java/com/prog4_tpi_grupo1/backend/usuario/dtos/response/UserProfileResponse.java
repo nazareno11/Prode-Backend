@@ -9,6 +9,6 @@ public record UserProfileResponse(
         Integer plenosAcertados,
         Integer cantidadPronosticos,
         Integer cantidadGrupos,
-        Integer ranking
-
+        Integer ranking,
+        String avatar
 ) {}

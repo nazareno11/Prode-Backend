@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.prog4_tpi_grupo1.backend.grupo.models.Grupo;
+import com.prog4_tpi_grupo1.backend.usuario.models.Avatar;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -53,6 +54,11 @@ public class Usuario implements UserDetails {
     private Integer puntosTotales;
 
     private Integer plenosAcertados;
+
+    //avatar
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    private Avatar avatar = Avatar.DEFAULT;
 
     @EqualsAndHashCode.Exclude //evitar StackOverflowError
     @ManyToMany(mappedBy = "miembros")
