@@ -38,7 +38,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 int cantidadPronosticos = (int) pronosticoRepository.countByUsuario(usuario);
 
                 int cantidadGrupos = usuario.getGrupos().size();
-                
+
                 Integer ranking = rankingService.obtenerPosicionUsuario(usuario.getId());
 
                 return usuarioMapper.toProfileResponse(
@@ -48,28 +48,26 @@ public class UsuarioServiceImpl implements IUsuarioService {
                                 ranking);
         }
 
-        /*AVATAR */
+        /* AVATAR */
         @Transactional
         public void updateAvatar(Avatar avatar) {
 
-        Usuario usuario = getUsuarioLogueado();
+                Usuario usuario = getUsuarioLogueado();
 
-        usuario.setAvatar(avatar);
+                usuario.setAvatar(avatar);
 
-        usuarioRepository.save(usuario);
+                usuarioRepository.save(usuario);
         }
 
         private Usuario getUsuarioLogueado() {
+                Usuario auth = (Usuario) SecurityContextHolder
+                                .getContext()
+                                .getAuthentication()
+                                .getPrincipal();
 
-        Usuario auth = (Usuario) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        return usuarioRepository
-                .findById(auth.getId())
-                .orElseThrow();
+                return usuarioRepository
+                                .findById(auth.getId())
+                                .orElseThrow();
         }
-        
-        
+
 }
