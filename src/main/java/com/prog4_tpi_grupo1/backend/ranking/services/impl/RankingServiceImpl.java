@@ -43,4 +43,21 @@ public class RankingServiceImpl implements IRankingService {
 
         return ranking;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Integer obtenerPosicionUsuario(Long usuarioId) {
+
+        List<Usuario> usuarios =
+                usuarioRepository.findAllByOrderByPuntosTotalesDescPlenosAcertadosDescUsernameAsc();
+
+        for (int i = 0; i < usuarios.size(); i++) {
+
+            if (usuarios.get(i).getId().equals(usuarioId)) {
+                return i + 1;
+            }
+        }
+
+        return null;
+}
 }

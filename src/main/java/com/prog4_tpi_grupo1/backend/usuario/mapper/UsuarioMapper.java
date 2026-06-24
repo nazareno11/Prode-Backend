@@ -11,7 +11,8 @@ public class UsuarioMapper {
     public UserProfileResponse toProfileResponse(
             Usuario usuario,
             Integer cantidadPronosticos,
-            Integer cantidadGrupos
+            Integer cantidadGrupos,
+            Integer ranking
     ) {
 
         return new UserProfileResponse(
@@ -21,7 +22,10 @@ public class UsuarioMapper {
                 usuario.getPuntosTotales(),
                 usuario.getPlenosAcertados(),
                 cantidadPronosticos,
-                cantidadGrupos
+                cantidadGrupos,
+                ranking
+                
+
         );
     }
 }

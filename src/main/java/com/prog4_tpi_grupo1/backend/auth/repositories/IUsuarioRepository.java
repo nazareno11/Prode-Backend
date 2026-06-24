@@ -32,4 +32,18 @@ public interface IUsuarioRepository extends JpaRepository<Usuario, Long> {
                 WHERE u.id = :id
             """)
     Optional<Usuario> findByIdConGrupos(@Param("id") Long id);
+
+    
 }
+/*
+alternativa para no cargar todos los grupos (ideal si hay muchos grupos)
+@Query("""
+    SELECT COUNT(g)
+    FROM Grupo g
+    JOIN g.miembros m
+    WHERE m.id = :usuarioId
+""")
+long countGruposByUsuarioId(@Param("usuarioId") Long usuarioId);
+
+
+*/

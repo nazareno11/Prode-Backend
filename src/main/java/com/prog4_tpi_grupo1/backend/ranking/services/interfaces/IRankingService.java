@@ -8,4 +8,6 @@ public interface IRankingService {
 
     List<RankingUsuarioResponseDTO> obtenerRankingGlobal();
 
+    Integer obtenerPosicionUsuario(Long usuarioId);
+
 }

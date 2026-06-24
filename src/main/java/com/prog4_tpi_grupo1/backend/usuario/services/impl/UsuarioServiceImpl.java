@@ -1,12 +1,12 @@
 package com.prog4_tpi_grupo1.backend.usuario.services.impl;
 
-
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.prog4_tpi_grupo1.backend.auth.models.Usuario;
 import com.prog4_tpi_grupo1.backend.auth.repositories.IUsuarioRepository;
 import com.prog4_tpi_grupo1.backend.pronostico.repository.PronosticoRepository;
+import com.prog4_tpi_grupo1.backend.ranking.services.interfaces.IRankingService;
 import com.prog4_tpi_grupo1.backend.usuario.dtos.response.UserProfileResponse;
 import com.prog4_tpi_grupo1.backend.usuario.mapper.UsuarioMapper;
 import com.prog4_tpi_grupo1.backend.usuario.services.interfaces.IUsuarioService;
@@ -17,30 +17,32 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsuarioServiceImpl implements IUsuarioService {
 
-
         private final IUsuarioRepository usuarioRepository;
-    private final PronosticoRepository pronosticoRepository;
-    private final UsuarioMapper usuarioMapper;
+        private final PronosticoRepository pronosticoRepository;
+        private final UsuarioMapper usuarioMapper;
+        private final IRankingService rankingService;
 
-    @Override
-    public UserProfileResponse getProfile() {
+        @Override
+        public UserProfileResponse getProfile() {
 
-        Usuario usuario =
-                (Usuario) SecurityContextHolder
-                        .getContext()
-                        .getAuthentication()
-                        .getPrincipal();
+                Usuario usuarioAuth = (Usuario) SecurityContextHolder
+                                .getContext()
+                                .getAuthentication()
+                                .getPrincipal();
 
-        int cantidadPronosticos =
-                (int) pronosticoRepository.countByUsuario(usuario);
+                Usuario usuario = usuarioRepository
+                                .findByIdConGrupos(usuarioAuth.getId())
+                                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                int cantidadPronosticos = (int) pronosticoRepository.countByUsuario(usuario);
 
-        int cantidadGrupos =
-                usuario.getGrupos().size();
+                int cantidadGrupos = usuario.getGrupos().size();
+                
+                Integer ranking = rankingService.obtenerPosicionUsuario(usuario.getId());
 
-        return usuarioMapper.toProfileResponse(
-                usuario,
-                cantidadPronosticos,
-                cantidadGrupos
-        );
-    }
+                return usuarioMapper.toProfileResponse(
+                                usuario,
+                                cantidadPronosticos,
+                                cantidadGrupos,
+                                ranking);
+        }
 }

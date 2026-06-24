@@ -8,6 +8,7 @@ public record UserProfileResponse(
         Integer puntosTotales,
         Integer plenosAcertados,
         Integer cantidadPronosticos,
-        Integer cantidadGrupos
+        Integer cantidadGrupos,
+        Integer ranking
 
 ) {}

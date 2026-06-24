@@ -45,13 +45,19 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // Login y registro
-                        .requestMatchers("/v3/api-docs/**",
-                                                    "/swagger-ui/**",
-                                                    "/swagger-ui.html").permitAll()
+                    .requestMatchers( // login NO TOCAR 
+                            "/api/auth/login",
+                            "/api/auth/register"
+                    ).permitAll()
 
-                        // Todo lo demás requiere autenticación
-                        .anyRequest().authenticated())
+                    .requestMatchers(
+                            "/v3/api-docs/**",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html"
+                    ).permitAll()
+
+                    .anyRequest().authenticated()
+                )
                 // Acomodar permisos cuando esten los controllers
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS))
