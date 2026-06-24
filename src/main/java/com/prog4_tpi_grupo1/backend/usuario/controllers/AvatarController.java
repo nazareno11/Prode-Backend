@@ -37,11 +37,5 @@ public class AvatarController {
         return ResponseEntity.ok(avatars);
     }
 
-    @PatchMapping("/me/avatar")
-    public ResponseEntity<Void> updateAvatar(
-            @RequestBody UpdateAvatarRequest request
-    ) {
-        usuarioService.updateAvatar(request.avatar());
-        return ResponseEntity.ok().build();
-    }
+
 }
