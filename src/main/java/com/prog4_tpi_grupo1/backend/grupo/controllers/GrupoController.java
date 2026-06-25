@@ -2,6 +2,9 @@ package com.prog4_tpi_grupo1.backend.grupo.controllers;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +25,11 @@ import com.prog4_tpi_grupo1.backend.grupo.services.interfaces.IGrupoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Tag(
+        name = "Grupos",
+        description = "Gestión de grupos privados"
+)
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/grupos")
 @RequiredArgsConstructor
@@ -29,6 +37,9 @@ public class GrupoController {
 
     private final IGrupoService grupoService;
 
+    @Operation(
+            summary = "Crear grupo"
+    )
     @PostMapping
     public ResponseEntity<GrupoResponseDTO> crearGrupo(
             @Valid @RequestBody CrearGrupoRequestDTO request,
@@ -39,6 +50,9 @@ public class GrupoController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @Operation(
+            summary = "Unirse a un grupo"
+    )
     @PostMapping("/unirse")
     public ResponseEntity<GrupoResponseDTO> unirseAGrupo(
             @Valid @RequestBody UnirseGrupoRequestDTO request,
@@ -49,6 +63,9 @@ public class GrupoController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Obtener mis grupos"
+    )
     @GetMapping("/mis-grupos")
     public ResponseEntity<List<GrupoResponseDTO>> obtenerMisGrupos(
             @AuthenticationPrincipal Usuario usuario) {
@@ -58,6 +75,9 @@ public class GrupoController {
         );
     }
 
+    @Operation(
+            summary = "Obtener ranking de grupo"
+    )
     @GetMapping("/{grupoId}/ranking")
     public ResponseEntity<List<RankingGrupoResponseDTO>> obtenerRanking(
             @PathVariable Long grupoId) {

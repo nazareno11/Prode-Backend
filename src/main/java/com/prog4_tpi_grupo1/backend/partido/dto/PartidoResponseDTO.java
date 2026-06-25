@@ -33,4 +33,11 @@ public class PartidoResponseDTO {
     private Integer resultadoVisitante;
 
     private String fecha;
+
+
+    private String escudoLocal;
+    private String escudoVisitante;
+
+    private String abreviaturaLocal;
+    private String abreviaturaVisitante;
 }

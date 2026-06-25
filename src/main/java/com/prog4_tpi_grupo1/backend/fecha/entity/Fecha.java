@@ -1,7 +1,6 @@
 package com.prog4_tpi_grupo1.backend.fecha.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.prog4_tpi_grupo1.backend.partido.entity.Partido;
 import jakarta.persistence.*;
 import lombok.*;
