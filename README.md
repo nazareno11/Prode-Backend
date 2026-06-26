@@ -377,3 +377,4 @@ El módulo `footballdata` se encarga de mantener sincronizada la base de datos l
 ## Frontend
 
 El consumo de esta API está pensado para un frontend desarrollado en **React + Vite** (de ahí que el CORS esté habilitado específicamente para `http://localhost:5173`, puerto por defecto del servidor de desarrollo de Vite). El frontend se autentica contra `/api/auth/login` o `/api/auth/register`, guarda el JWT recibido, y lo envía en el header `Authorization` para consumir el resto de los endpoints descritos en este documento.
+https://github.com/nazareno11/Prode-Frontend.git
