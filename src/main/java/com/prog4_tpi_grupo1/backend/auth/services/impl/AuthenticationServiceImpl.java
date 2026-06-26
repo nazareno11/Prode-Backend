@@ -14,6 +14,7 @@ import com.prog4_tpi_grupo1.backend.auth.repositories.IUsuarioRepository;
 import com.prog4_tpi_grupo1.backend.auth.services.interfaces.IAuthenticationService;
 import com.prog4_tpi_grupo1.backend.auth.services.interfaces.IJwtService;
 import com.prog4_tpi_grupo1.backend.shared.config.esceptions.ConflictException;
+import com.prog4_tpi_grupo1.backend.usuario.models.Avatar;
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,6 +50,7 @@ public class AuthenticationServiceImpl
                 .rol(Rol.USER)
                 .puntosTotales(0)
                 .plenosAcertados(0)
+                .avatar(Avatar.DEFAULT)
                 .build();
 
         usuarioRepository.save(usuario);

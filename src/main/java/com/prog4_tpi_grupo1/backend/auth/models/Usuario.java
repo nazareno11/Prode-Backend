@@ -12,6 +12,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.prog4_tpi_grupo1.backend.grupo.models.Grupo;
 import com.prog4_tpi_grupo1.backend.usuario.models.Avatar;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -55,9 +58,10 @@ public class Usuario implements UserDetails {
 
     private Integer plenosAcertados;
 
-    //avatar
     @Builder.Default
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(nullable = false, length = 50)
     private Avatar avatar = Avatar.DEFAULT;
 
     @EqualsAndHashCode.Exclude //evitar StackOverflowError

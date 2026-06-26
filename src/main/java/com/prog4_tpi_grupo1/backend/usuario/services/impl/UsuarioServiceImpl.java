@@ -7,6 +7,7 @@ import com.prog4_tpi_grupo1.backend.auth.models.Usuario;
 import com.prog4_tpi_grupo1.backend.auth.repositories.IUsuarioRepository;
 import com.prog4_tpi_grupo1.backend.pronostico.repository.PronosticoRepository;
 import com.prog4_tpi_grupo1.backend.ranking.services.interfaces.IRankingService;
+import com.prog4_tpi_grupo1.backend.shared.config.esceptions.BadRequestException;
 import com.prog4_tpi_grupo1.backend.usuario.dtos.response.UserProfileResponse;
 import com.prog4_tpi_grupo1.backend.usuario.mapper.UsuarioMapper;
 import com.prog4_tpi_grupo1.backend.usuario.models.Avatar;
@@ -51,6 +52,9 @@ public class UsuarioServiceImpl implements IUsuarioService {
         /* AVATAR */
         @Transactional
         public void updateAvatar(Avatar avatar) {
+                if (avatar == null) {
+                        throw new BadRequestException("El avatar es obligatorio");
+                }
 
                 Usuario usuario = getUsuarioLogueado();
 
