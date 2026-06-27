@@ -117,6 +117,8 @@ public class FootballDataService {
 
                 // Guardamos el estado anterior
                 EstadoPartido estadoAnterior = partido.getEstado();
+                Integer resultadoLocalAnterior = partido.getResultadoLocal();
+                Integer resultadoVisitanteAnterior = partido.getResultadoVisitante();
 
                 // Actualizamos el partido
                 partido.setEstado(convertirEstado(match.getStatus()));
@@ -125,9 +127,14 @@ public class FootballDataService {
 
                 partidoRepository.save(partido);
 
-                // Si recien paso a finalizado, calculamos los puntos
-                if (estadoAnterior != EstadoPartido.FINALIZADO
-                        && partido.getEstado() == EstadoPartido.FINALIZADO) {
+                boolean pasoAFinalizado = estadoAnterior != EstadoPartido.FINALIZADO
+                        && partido.getEstado() == EstadoPartido.FINALIZADO;
+                boolean cambioResultado = !Objects.equals(resultadoLocalAnterior, golesLocal)
+                        || !Objects.equals(resultadoVisitanteAnterior, golesVisitante);
+
+                // Si recien paso a finalizado o corrigieron el resultado, calculamos los puntos.
+                if (partido.getEstado() == EstadoPartido.FINALIZADO
+                        && (pasoAFinalizado || cambioResultado)) {
 
                     puntuacionService.calcularPuntosPartido(partido.getId());
                 }
@@ -149,6 +156,10 @@ public class FootballDataService {
                         .build();
 
                 partidoRepository.save(partido);
+
+                if (partido.getEstado() == EstadoPartido.FINALIZADO) {
+                    puntuacionService.calcularPuntosPartido(partido.getId());
+                }
             }
         }
         for (Fecha fecha : fechasActualizadas) {

@@ -26,49 +26,72 @@ public class PuntuacionServiceImpl implements IPuntuacionService {
     private final PartidoRepository partidoRepository;
     private final IUsuarioRepository usuarioRepository;
 
-@Override
-public void calcularPuntosPartido(Long partidoId) {
+    @Override
+    public void calcularPuntosPartido(Long partidoId) {
 
-    Partido partido = partidoRepository.findById(partidoId)
-            .orElseThrow(() -> new NotFoundException("Partido no encontrado"));
+        Partido partido = partidoRepository.findById(partidoId)
+                .orElseThrow(() -> new NotFoundException("Partido no encontrado"));
 
-    if (partido.getResultadoLocal() == null
-            || partido.getResultadoVisitante() == null) {
-        return;
+        if (partido.getResultadoLocal() == null
+                || partido.getResultadoVisitante() == null) {
+            return;
+        }
+
+        List<Pronostico> pronosticos =
+                pronosticoRepository.findByPartidoId(partidoId);
+
+        Tendencia tendenciaReal = obtenerTendencia(
+                partido.getResultadoLocal(),
+                partido.getResultadoVisitante());
+
+        for (Pronostico pronostico : pronosticos) {
+
+            Usuario usuario = pronostico.getUsuario();
+
+            int puntosAnteriores = valorEntero(pronostico.getPuntosObtenidos());
+            boolean plenoAnterior = Boolean.TRUE.equals(pronostico.getPlenoAcertado());
+
+            int puntosNuevos = calcularPuntosPronostico(pronostico, partido, tendenciaReal);
+            boolean plenoNuevo = esPleno(pronostico, partido);
+
+            usuario.setPuntosTotales(valorEntero(usuario.getPuntosTotales()) + puntosNuevos - puntosAnteriores);
+
+            if (plenoAnterior != plenoNuevo) {
+                int diferenciaPlenos = plenoNuevo ? 1 : -1;
+                usuario.setPlenosAcertados(valorEntero(usuario.getPlenosAcertados()) + diferenciaPlenos);
+            }
+
+            pronostico.setPuntosObtenidos(puntosNuevos);
+            pronostico.setPlenoAcertado(plenoNuevo);
+
+            pronosticoRepository.save(pronostico);
+            usuarioRepository.save(usuario);
+        }
     }
 
-    List<Pronostico> pronosticos =
-            pronosticoRepository.findByPartidoId(partidoId);
-
-    Tendencia tendenciaReal = obtenerTendencia(
-            partido.getResultadoLocal(),
-            partido.getResultadoVisitante());
-
-    for (Pronostico pronostico : pronosticos) {
-
-        Usuario usuario = pronostico.getUsuario();
+    private int calcularPuntosPronostico(Pronostico pronostico, Partido partido, Tendencia tendenciaReal) {
 
         Tendencia tendenciaPronosticada = obtenerTendencia(
                 pronostico.getGolesLocal(),
                 pronostico.getGolesVisitante());
 
-        if (tendenciaPronosticada == tendenciaReal) {
-
-            usuario.setPuntosTotales(usuario.getPuntosTotales() + 1);
-
-            boolean pleno =
-                    pronostico.getGolesLocal().equals(partido.getResultadoLocal())
-                    && pronostico.getGolesVisitante().equals(partido.getResultadoVisitante());
-
-            if (pleno) {
-                usuario.setPuntosTotales(usuario.getPuntosTotales() + 2);
-                usuario.setPlenosAcertados(usuario.getPlenosAcertados() + 1);
-            }
+        if (tendenciaPronosticada != tendenciaReal) {
+            return 0;
         }
 
-        usuarioRepository.save(usuario);
+        return esPleno(pronostico, partido) ? 3 : 1;
     }
-}
+
+    private boolean esPleno(Pronostico pronostico, Partido partido) {
+
+        return pronostico.getGolesLocal().equals(partido.getResultadoLocal())
+                && pronostico.getGolesVisitante().equals(partido.getResultadoVisitante());
+    }
+
+    private int valorEntero(Integer valor) {
+
+        return valor == null ? 0 : valor;
+    }
 
     private Tendencia obtenerTendencia(Integer local, Integer visitante) {
 

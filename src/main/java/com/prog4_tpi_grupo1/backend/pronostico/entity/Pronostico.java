@@ -40,6 +40,12 @@ public class Pronostico {
     @Column(name = "goles_visitante", nullable = false)
     private Integer golesVisitante;
 
+    @Column(name = "puntos_obtenidos")
+    private Integer puntosObtenidos = 0;
+
+    @Column(name = "pleno_acertado")
+    private Boolean plenoAcertado = false;
+
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
 
