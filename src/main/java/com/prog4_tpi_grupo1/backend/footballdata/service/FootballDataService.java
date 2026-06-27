@@ -73,9 +73,18 @@ public class FootballDataService {
                 continue;
             }
 
-            Fecha fecha = fechaRepository.findByGrupoAndMatchday(
+            Optional<Fecha> fechaOpt = fechaRepository.findByGrupoAndMatchday(
                     match.getGroup(),
-                    match.getMatchday()).orElseThrow();
+                    match.getMatchday());
+
+            if (fechaOpt.isEmpty()) {
+                System.out.println(
+                        "No existe la fecha: grupo=" + match.getGroup()
+                                + " matchday=" + match.getMatchday());
+                continue;
+            }
+
+            Fecha fecha = fechaOpt.get();
 
             fechasActualizadas.add(fecha);
 
@@ -108,6 +117,8 @@ public class FootballDataService {
 
                 // Guardamos el estado anterior
                 EstadoPartido estadoAnterior = partido.getEstado();
+                Integer resultadoLocalAnterior = partido.getResultadoLocal();
+                Integer resultadoVisitanteAnterior = partido.getResultadoVisitante();
 
                 // Actualizamos el partido
                 partido.setEstado(convertirEstado(match.getStatus()));
@@ -116,9 +127,14 @@ public class FootballDataService {
 
                 partidoRepository.save(partido);
 
-                // Si recien paso a finalizado, calculamos los puntos
-                if (estadoAnterior != EstadoPartido.FINALIZADO
-                        && partido.getEstado() == EstadoPartido.FINALIZADO) {
+                boolean pasoAFinalizado = estadoAnterior != EstadoPartido.FINALIZADO
+                        && partido.getEstado() == EstadoPartido.FINALIZADO;
+                boolean cambioResultado = !Objects.equals(resultadoLocalAnterior, golesLocal)
+                        || !Objects.equals(resultadoVisitanteAnterior, golesVisitante);
+
+                // Si recien paso a finalizado o corrigieron el resultado, calculamos los puntos.
+                if (partido.getEstado() == EstadoPartido.FINALIZADO
+                        && (pasoAFinalizado || cambioResultado)) {
 
                     puntuacionService.calcularPuntosPartido(partido.getId());
                 }
@@ -140,6 +156,10 @@ public class FootballDataService {
                         .build();
 
                 partidoRepository.save(partido);
+
+                if (partido.getEstado() == EstadoPartido.FINALIZADO) {
+                    puntuacionService.calcularPuntosPartido(partido.getId());
+                }
             }
         }
         for (Fecha fecha : fechasActualizadas) {
@@ -229,5 +249,24 @@ public class FootballDataService {
         fecha.setEstado(EstadoFecha.PROGRAMADA);
 
         fechaRepository.save(fecha);
+    }
+
+    public void inicializarSiEsNecesario() {
+
+        System.out.println("Equipos: " + equipoRepository.count());
+        System.out.println("Fechas: " + fechaRepository.count());
+
+        if (equipoRepository.count() == 0) {
+            System.out.println("Sincronizando equipos...");
+            syncTeams();
+        }
+
+        if (fechaRepository.count() == 0) {
+            System.out.println("Sincronizando fechas...");
+            syncFechas();
+            System.out.println("Fechas luego de sync: " + fechaRepository.count());
+        }
+
+        syncMatches();
     }
 }

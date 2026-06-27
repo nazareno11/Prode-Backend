@@ -19,7 +19,7 @@ public class FootballDataScheduler {
         try {
 
             log.info("Iniciando sincronizacion automatica de partidos...");
-            footballDataService.syncMatches();
+            footballDataService.inicializarSiEsNecesario();
             log.info("Sincronizacion finalizada correctamente.");
 
         } catch (Exception e) {
