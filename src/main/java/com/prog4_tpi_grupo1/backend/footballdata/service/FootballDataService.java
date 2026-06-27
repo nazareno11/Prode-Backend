@@ -73,9 +73,18 @@ public class FootballDataService {
                 continue;
             }
 
-            Fecha fecha = fechaRepository.findByGrupoAndMatchday(
+            Optional<Fecha> fechaOpt = fechaRepository.findByGrupoAndMatchday(
                     match.getGroup(),
-                    match.getMatchday()).orElseThrow();
+                    match.getMatchday());
+
+            if (fechaOpt.isEmpty()) {
+                System.out.println(
+                        "No existe la fecha: grupo=" + match.getGroup()
+                                + " matchday=" + match.getMatchday());
+                continue;
+            }
+
+            Fecha fecha = fechaOpt.get();
 
             fechasActualizadas.add(fecha);
 
@@ -229,5 +238,24 @@ public class FootballDataService {
         fecha.setEstado(EstadoFecha.PROGRAMADA);
 
         fechaRepository.save(fecha);
+    }
+
+    public void inicializarSiEsNecesario() {
+
+        System.out.println("Equipos: " + equipoRepository.count());
+        System.out.println("Fechas: " + fechaRepository.count());
+
+        if (equipoRepository.count() == 0) {
+            System.out.println("Sincronizando equipos...");
+            syncTeams();
+        }
+
+        if (fechaRepository.count() == 0) {
+            System.out.println("Sincronizando fechas...");
+            syncFechas();
+            System.out.println("Fechas luego de sync: " + fechaRepository.count());
+        }
+
+        syncMatches();
     }
 }
